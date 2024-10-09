@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: 'Timestream'
+    orgId: 1
+    folder: 'GitLab'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /etc/grafana/provisioning/dashboards

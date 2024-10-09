@@ -1,0 +1,539 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": 2,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 26,
+      "panels": [],
+      "title": "提交风格分析",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-timestream-datasource",
+        "uid": "O2jAS0_4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": -1,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 12,
+        "x": 0,
+        "y": 1
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "9.2.6",
+      "targets": [
+        {
+          "database": "\"gitlab-stat\"",
+          "datasource": {
+            "type": "grafana-timestream-datasource",
+            "uid": "O2jAS0_4k"
+          },
+          "measure": "additions",
+          "rawQuery": "SELECT author, CREATE_TIME_SERIES(date, value) as LOC\nFROM (\n  SELECT BIN(time, $period) date, author, count(*) as value\n  FROM \"gitlab-stat\".\"gitlab-history\" \n  WHERE (time BETWEEN from_milliseconds($__timeFrom) AND from_milliseconds($__timeTo)) AND author IN ($author)\n      AND author != 'autogit'\n      AND parents = '1'\n      AND \"group\" in ($group)\n      AND project in ($project)\n  GROUP BY author, BIN(time, $period)\n  ORDER BY BIN(time, $period) DESC, author DESC)\nGROUP by author\nORDER BY sum(value) desc",
+          "refId": "A",
+          "table": "\"gitlab-history\""
+        }
+      ],
+      "title": "Daily Count per Author",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-timestream-datasource",
+        "uid": "O2jAS0_4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": -1,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 12,
+        "x": 12,
+        "y": 1
+      },
+      "id": 40,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "9.2.6",
+      "targets": [
+        {
+          "database": "\"gitlab-stat\"",
+          "datasource": {
+            "type": "grafana-timestream-datasource",
+            "uid": "O2jAS0_4k"
+          },
+          "measure": "additions",
+          "rawQuery": "SELECT author, CREATE_TIME_SERIES(date, value) as LOC\nFROM (\n  SELECT BIN(time, $period) date, author, sum(measure_value::double) as value\n  FROM \"gitlab-stat\".\"gitlab-history\" \n  WHERE (time BETWEEN from_milliseconds($__timeFrom) AND from_milliseconds($__timeTo))\n     AND author IN ($author)\n     AND measure_name in ('additions', 'deletions')\n     AND parents = '1'\n     AND \"group\" in ($group)\n     AND project in ($project)\n     AND measure_value::double < 10000\n  GROUP BY author, BIN(time, $period)\n  ORDER BY BIN(time, $period) DESC, author DESC)\nGROUP by author\nORDER BY avg(value) DESC",
+          "refId": "A",
+          "table": "\"gitlab-history\""
+        }
+      ],
+      "title": "Daily Total Commit Size Per Author",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-timestream-datasource",
+        "uid": "O2jAS0_4k"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "scaleDistribution": {
+              "type": "linear"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 12
+      },
+      "id": 29,
+      "options": {
+        "calculate": false,
+        "cellGap": 1,
+        "color": {
+          "exponent": 0.5,
+          "fill": "dark-orange",
+          "mode": "scheme",
+          "reverse": false,
+          "scale": "exponential",
+          "scheme": "Oranges",
+          "steps": 64
+        },
+        "exemplars": {
+          "color": "rgba(255,0,255,0.7)"
+        },
+        "filterValues": {
+          "le": 1e-9
+        },
+        "legend": {
+          "show": true
+        },
+        "rowsFrame": {
+          "layout": "auto"
+        },
+        "tooltip": {
+          "show": true,
+          "showColorScale": false,
+          "yHistogram": false
+        },
+        "yAxis": {
+          "axisPlacement": "left",
+          "reverse": true
+        }
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "database": "\"gitlab-stat\"",
+          "datasource": {
+            "type": "grafana-timestream-datasource",
+            "uid": "O2jAS0_4k"
+          },
+          "measure": "additions",
+          "rawQuery": "WITH all_hours AS (\n  SELECT h FROM UNNEST(SEQUENCE(0, 23)) as t(h)\n)\nSELECT all_hours.h, CREATE_TIME_SERIES(data.date, value) hour\nFROM all_hours\nLEFT JOIN (\n  SELECT BIN(time, $period) date, (hour(time) + 8) % 24 h, count(*) AS value\n  FROM \"gitlab-stat\".\"gitlab-history\" \n  WHERE (time BETWEEN from_milliseconds($__timeFrom) AND from_milliseconds($__timeTo))\n     AND author IN ($author) AND author != 'autogit'\n     AND \"group\" IN ($group)\n     AND measure_name IN ('additions')\n    AND parents = '1'\n    AND project in ($project)\n  GROUP BY hour(time), BIN(time, $period)\n) AS data ON all_hours.h = data.h\nGROUP BY all_hours.h\nORDER BY all_hours.h",
+          "refId": "A",
+          "table": "\"gitlab-history\""
+        }
+      ],
+      "title": "Commit Distribution During a Day",
+      "type": "heatmap"
+    },
+    {
+      "datasource": {
+        "type": "grafana-timestream-datasource",
+        "uid": "O2jAS0_4k"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 12
+      },
+      "id": 31,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "never",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "database": "\"gitlab-stat\"",
+          "datasource": {
+            "type": "grafana-timestream-datasource",
+            "uid": "O2jAS0_4k"
+          },
+          "measure": "FieldData",
+          "rawQuery": "WITH all_hours AS (\n  SELECT h FROM UNNEST(SEQUENCE(0, 23)) as t(h)\n),\nuser_counts as (\nSELECT hour(time) as h, author, count(*) as c\nFROM \"gitlab-stat\".\"gitlab-history\" \nWHERE (time BETWEEN from_milliseconds($__timeFrom) AND from_milliseconds($__timeTo))\n    AND author IN ($author)\n    AND measure_name IN ('additions')\n    AND project in ($project)\n    AND \"group\" in ($group)\nGROUP BY hour(time), author\n)\nSELECT cast((all_hours.h + 8) % 24 as varchar) as \"时间\", sum(user_counts.c) as \"数量\"\nFROM all_hours\nLEFT JOIN user_counts ON all_hours.h = user_counts.h\nGROUP by (all_hours.h + 8) % 24\nORDER BY (all_hours.h + 8) % 24\n",
+          "refId": "A",
+          "table": "\"devops-jira-new\""
+        }
+      ],
+      "title": "选定用户的代码贡献分布",
+      "type": "barchart"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 39,
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "grafana-timestream-datasource",
+          "uid": "O2jAS0_4k"
+        },
+        "definition": "SELECT DISTINCT author FROM \"gitlab-stat\".\"gitlab-history\" WHERE (time BETWEEN from_milliseconds($__timeFrom) AND from_milliseconds($__timeTo)) ",
+        "hide": 0,
+        "includeAll": true,
+        "multi": true,
+        "name": "author",
+        "options": [],
+        "query": "SELECT DISTINCT author FROM \"gitlab-stat\".\"gitlab-history\" WHERE (time BETWEEN from_milliseconds($__timeFrom) AND from_milliseconds($__timeTo)) ",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "grafana-timestream-datasource",
+          "uid": "O2jAS0_4k"
+        },
+        "definition": "SELECT DISTINCT \"group\" FROM \"gitlab-stat\".\"gitlab-history\" WHERE (time BETWEEN from_milliseconds($__timeFrom) AND from_milliseconds($__timeTo)) ",
+        "hide": 0,
+        "includeAll": true,
+        "multi": true,
+        "name": "group",
+        "options": [],
+        "query": "SELECT DISTINCT \"group\" FROM \"gitlab-stat\".\"gitlab-history\" WHERE (time BETWEEN from_milliseconds($__timeFrom) AND from_milliseconds($__timeTo)) ",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "1d",
+          "value": "1d"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "name": "period",
+        "options": [
+          {
+            "selected": true,
+            "text": "1d",
+            "value": "1d"
+          },
+          {
+            "selected": false,
+            "text": "7d",
+            "value": "7d"
+          },
+          {
+            "selected": false,
+            "text": "30d",
+            "value": "30d"
+          }
+        ],
+        "query": "1d,7d,30d",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "grafana-timestream-datasource",
+          "uid": "O2jAS0_4k"
+        },
+        "definition": "SELECT DISTINCT \"project\" FROM \"gitlab-stat\".\"gitlab-history\" WHERE (time BETWEEN from_milliseconds($__timeFrom) AND from_milliseconds($__timeTo)) ",
+        "hide": 0,
+        "includeAll": true,
+        "multi": true,
+        "name": "project",
+        "options": [],
+        "query": "SELECT DISTINCT \"project\" FROM \"gitlab-stat\".\"gitlab-history\" WHERE (time BETWEEN from_milliseconds($__timeFrom) AND from_milliseconds($__timeTo)) ",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-90d",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Git Commit by Day",
+  "uid": "gitCommitByDay",
+  "version": 1,
+  "weekStart": ""
+}

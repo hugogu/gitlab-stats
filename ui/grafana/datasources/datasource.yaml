@@ -1,0 +1,27 @@
+apiVersion: 1
+
+datasources:
+  - name: DevOpsInfluxDB
+    type: influxdb
+    access: proxy
+    database: devops
+    url: http://influxdb:8086
+    isDefault: true
+    secureJsonData:
+      httpHeaderValue1:  'Token $INFLUXDB_API_TOKEN'
+    jsonData:
+      dbName: devops
+      httpMode: GET
+      httpHeaderName1: 'Authorization'
+  - name: Timestream
+    type: grafana-timestream-datasource
+    access: proxy
+    uid: O2jAS0_4k
+    jsonData:
+      defaultRegion: us-east-1
+      authType: keys
+    secureJsonData:
+      accessKey: $AWS_ACCESS_KEY
+      secretKey: $AWS_SECRET_KEY
+      database: $TIMESTREAM_DATABASE
+

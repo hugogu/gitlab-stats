@@ -1,0 +1,36 @@
+version: '3'
+services:
+  influxdb:
+    image: influxdb:2.7
+    ports:
+      - "8086:8086"
+    environment:
+      - INFLUXDB_DB=devops
+      - INFLUXD_LOG_LEVEL=debug
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=root
+      - DOCKER_INFLUXDB_INIT_PASSWORD=password1
+      - DOCKER_INFLUXDB_INIT_ORG=hugo
+      - DOCKER_INFLUXDB_INIT_BUCKET=devops
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=secret_token
+      - DOCKER_INFLUXD_SESSION_LENGTH=1440
+    volumes:
+      - ./tmp/influxdb:/var/lib/influxdb
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_BASIC_ENABLED=false
+      - GF_INSTALL_PLUGINS=grafana-timestream-datasource
+      - DS_AMAZON_TIMESTREAM=TSjsr1Gik
+      - INFLUXDB_API_TOKEN=secret_token
+      - INFLUXDB_ORG=hugo
+      - INFLUXDB_DEFAULT_BUCKET=devops
+      - AWS_ACCESS_KEY
+      - AWS_SECRET_KEY
+      - TIMESTREAM_DATABASE=
+    volumes:
+      - ./ui/grafana:/etc/grafana/provisioning/
