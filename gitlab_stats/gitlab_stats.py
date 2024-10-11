@@ -1,8 +1,9 @@
 import argparse
 
-import gitlab
 from concurrent import futures
-
+from datetime import datetime
+from metrics_fetcher_github import GitHubMetricsFetcher
+from metrics_fetcher_gitlab import GitLabMetricsFetcher
 from metrics_store_ts import TimestreamMetricsStore, TimestreamMetricsProcessor
 from metrics_store_influx import InfluxDBMetricsStore, InfluxDBMetricsProcessor
 
@@ -24,13 +25,19 @@ def parse_arguments():
     parser.add_argument('--influxdb-url', required=False, help='InfluxDB URL')
     parser.add_argument('--influxdb-token', required=False, help='InfluxDB Token')
     parser.add_argument('--influxdb-org', required=False, help='InfluxDB Organization')
+    parser.add_argument('--site-type', required=False, choices=['gitlab', 'github'], help='Type of site to fetch metrics from', default='gitlab')
 
     return parser.parse_args()
 
 class Context:
     def __init__(self, args):
         self.args = args
-        self.gitlab_client = gitlab.Gitlab(args.gitlab_url, private_token=args.access_key)
+        if args.site_type == 'gitlab':
+            self.metrics_fetcher = GitLabMetricsFetcher(args.gitlab_url, args.access_key)
+        elif args.site_type == 'github':
+            self.metrics_fetcher = GitHubMetricsFetcher(args.access_key)
+        else:
+            raise ValueError("Unsupported site type")
 
         if args.store_type == 'timestream':
             self.metrics_store = TimestreamMetricsStore(args.region, args.aws_access_key, args.aws_access_secret)
@@ -52,23 +59,15 @@ def generate_project_records(context, project, default_branch):
     if not context.args.reload and project.name in processed_commits:
         since = processed_commits.get(project.name, 0)
     else:
-        since = '2000-01-01T00:00:00.000Z'
-    if context.args.all_branch:
-        branches = project.branches.list(all=True)
-    else:
-        branches = [project.branches.get(default_branch)]
-
-    commits = [commit
-               for branch in branches
-               for commit in project.commits.list(all=True, with_stats=True, since=since, ref_name=branch.name)
-               ]
+        since = datetime.strptime('2000-01-01T00:00:00.000Z', '%Y-%m-%dT%H:%M:%S.%fZ')
+    commits = context.metrics_fetcher.fetch_commits(project, since, context.args.all_branch)
     existing_commits = context.metrics_processor.get_all_commits_id(context.args, project.name)
     print(f"Retrieved {len(commits)} commits in project: {project.name} since ${since}")
 
     for commit in commits:
-        if context.args.reload or commit.id not in existing_commits:
-            existing_commits.add(commit.id)
-            yield from context.metrics_processor.process_commit(commit.attributes, project)
+        if context.args.reload or commit.sha not in existing_commits:
+            existing_commits.add(commit.sha)
+            yield from context.metrics_processor.process_commit(commit, project)
 
 
 def main():
@@ -76,7 +75,7 @@ def main():
     context = Context(args)
     context.metrics_store.create_table(args.database, args.table, args.s3_bucket)
 
-    projects = [p for p in context.gitlab_client.projects.list(all=True)
+    projects = [p for p in context.metrics_fetcher.fetch_projects()
                 if args.project is None or p.name == args.project]
     print(f"Loaded {len(projects)} projects from gitlab")
 
@@ -85,7 +84,13 @@ def main():
         print(f"Processing {len(records)} new records in project: {project.name}")
         context.metrics_store.write_records(records, args.database, args.table)
 
-    futures.ThreadPoolExecutor().map(process_project, projects)
+    # MultiThreading
+    # futures.ThreadPoolExecutor().map(process_project, projects)
+
+    # Single Thread
+    # Process projects
+    for project in projects:
+        process_project(project)
 
 if __name__ == '__main__':
     main()
